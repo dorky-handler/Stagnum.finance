@@ -1,0 +1,1816 @@
+<!--To do
+1) Add promotion banner for donation
+2) Feature own validators in future
+3) Better docs
+-->
+<html>
+    <head>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js">
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://unpkg.com/browse/borsh@0.7.0/lib/index.d.ts"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.2/js/dataTables.select.js">
+<script src="https://cdn.datatables.net/select/1.2.2/js/dataTables.select.min.js"></script>
+ <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+ <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="include/handler.js"></script>
+<title>
+    Stagnum.Finance
+</title>
+
+    </head>
+    <body style="background: #FDFEFF ;"  onload="con_wall()" >
+        
+        <div id="navbar" style="display: flex;flex-direction: row;width:102%;background: lightgray;margin-left:-1.5%;margin-top: -0.6%;height: 10%;">
+            <div id="navbarleft" style="display: flex;flex-direction: row;margin-top:1px;">
+                <img src="../images/stag.png" style="height:80px;width:80px;border-radius:10px;border-radius: 10px;">
+                <h1 style="font-family: 'dstar';margin-top:15px;color:#333"><strong>Stagnum</strong></h1>
+            </div>
+            <div id="navbarcent" style="display:flex;flex-direction: row;margin-top:1px; margin-left: auto;margin-right:auto;margin-top:15px;">
+                <div onclick="vscreen()">Validators <hr></div>
+                <div onclick="rvlrwd();">Rewards  <hr></div>
+                <div> <a style="text-decoration: none; color: black;font-family: 'MONTSERRAT';" href="https://docs.stagnum.finance/">Docs <hr></a></div>
+               <div onclick="vscreen()"> <a style="text-decoration: none; color: black;font-family: 'MONTSERRAT';" href="https://discord.gg/JTp5vyK8FS">Discord  <hr></a></div>
+                <div onclick="rvlstk()" id="stkmenu">Stake <span class='badge badge-warning' id='lblCartCount'> 0 </span></div>
+            </div>
+            <div id="navbarright" >
+              <i class="fas fa-link"></i>  Connect
+              <span id="rvlspn"><button class="wltbtn" onclick="wallconn('ph');" ><i class="fas fa-ghost fa-fw"></i> Phantom</button>
+              <button class="wltbtn" onclick="wallconn('sl');"><i class="fas fa-sun fa-fw"></i> Solflare</button></span>
+            </div>
+        </div>
+         <div id="welcomecard">
+             <div style="word-wrap: break-word;width:25%;margin-left:5%;" >
+            <div style="display:flex;height: 80%;"><div style="width:3px;margin-right:6px;"><div style="background:gray;width: 3px;height: 100%;margin-top:2px;"></div></div><div><div style="color:gray;">Welcome : </div><strong><div id="wallet" style="word-break: break-word;"></div></strong></div></div></div>
+             <div style=""><div style="display:flex;"><div style="width:3px;margin-right:6px;"><div style="background:gray;width: 3px;height: 100%;margin-top:2px;"></div></div><div><div style="color:gray;">Epoch : </div><strong><div id="epid" style="margin-top:8px;font-size: x-large;"></div></strong></div></div></div>
+            
+            <div style=""><div style="display:flex;"><div style="width:3px;margin-right:6px;"><div style="background:gray;width: 3px;height: 100%;margin-top:2px;"></div></div><div><div style="color:gray;">Balance :</div> <strong><div id="balid" style="margin-top:8px;font-size: x-large;"></div></strong></div></div></div>
+              <div style="width:19%;"><div style="display:flex;"><div style="width:3px;margin-right:6px;"><div style="background:gray;width: 3px;height: 100%;margin-top:2px;"></div></div><div><div style="color:gray;">Total stake : </div><strong><div id="tstake" style="margin-top:8px;font-size: x-large;"></div></strong></div></div></div>
+              
+        </div>
+        <div id="loadingscreen">
+             <div class="overlay-loader">
+	<div class="loader">
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
+    <div class="btm">	Loading...
+    <br>
+    <div id="loaddesc">Loading contents</div>
+    </div>
+</div>
+        </div>
+     
+        <div id="validatorscreen" style="font-family: 'Montserrat';">
+    
+           <div id="validatorpopup">
+          <!-- <div class="heading">Validators list</div> -->
+          <!-- <button class="clsbtn" onclick="valclose();"><i class="fas fa-times"></i></button> -->
+           <div style="display:flex;justify-content: space-between;width:73%;margin-left: 50%;transform: translateX(-50%);"><div style="display:flex;background:#d3d3d380;width:69%;justify-content: space-between;border-radius:5px;"><h5 style="margin-left:2px;">Filters : </h5><button class="filtermenu" onclick="rvlfilter('comm');">Commission</button><button class="filtermenu" onclick="rvlfilter('apy');">APY</button><button class="filtermenu" onclick="rvlfilter('data');">Data center</button><button class="filtermenu" onclick="rvlfilter('stake');">Stake</button><button class="filtermenu" onclick="rvlfilter('vote');">Voting</button><button style="margin-right:3px;" class="filtermenu" onclick="rvlfilter('version');">Version</button></div><div style="display:flex;justify-content: space-between;width:30%;background:#d3d3d380;margin-left:2%;border-radius:5px;"><h5 style="margin-left:1px;">Select:</h5><button onclick="top5();" id="top5"><input onclick="top5();" style="margin-top:2px;" type="checkbox" id="t5chk">Top 5</button><button  onclick="top10();" id="top10"><input onclick="top10();" style="margin-top:2px;" type="checkbox"  id="t10chk">Top 10</button><button style="margin-right:3px;" onclick="top20();" id="top20"><input onclick="top20();" style="margin-top:2px;" type="checkbox" id="t20chk">Top 20</button></div></div>
+           <div class="tableholder" >
+            <table id="tabexample" style="width:90%;"></table>
+            </div>
+          <!-- <button class="button" onclick="addtolist();" >Add to list</button> -->
+       </div></div>
+       
+     <!--  <div id="filterbtn" style="border-radius:40px;border:1px solid;position:absolute;z-index:9999;padding:19px;background: #f7f740;right: 3em;bottom: 7em;" onclick="rvlfilter();"><i class="fas fa-filter fa-4x"></i></div> -->
+       <div id="validatorinfoscreen" class="screen" style="transform: translateY(-10px);top:0;position:fixed;">
+           <div id="validpopup">
+               <div style="display:flex;background:lightgray;text-align:left;"> <div class="heading" id="heading" >Validator Details</div> <button class="closebtn" onclick="vpopclose();"><i class="fas fa-times"></i></button></div>
+                
+         
+           <div style="width:100%;height:80%;overflow:scroll;">
+              <div style="width:95%;margin:auto;">
+                    <div style="display:flex;margin-top:20px;margin-bottom: 20px;justify-content: space-between;"><div> <div style="color: grey;text-align: left;font-size: small;">Stake :</div><div style="text-align: left;font-size: larger;" id="vstake"> Stake  : 6789 SOL</div></div><div> <div style="color: grey;text-align: left;font-size: small;">Delinquent :</div><div style="text-align: left;font-size: larger;" id="vdelin">Delinquent: True </div></div><div><div style="color: grey;text-align: left;font-size: small;">Skip Rate :</div><div style="text-align: left;font-size: larger;" id="vskip">Skip rate : 0.07 %</div></div></div>
+        <hr width="95%">
+        <div style="display:flex;margin-top:20px;margin-bottom: 20px;justify-content: space-between;">
+            <div><div style="color: grey;text-align: left;font-size: small;">Data Center Concentration :</div><div style="text-align: left;font-size: larger;" id="vdconc">data center Concentration : Low</div></div>
+            <div>
+                  <div style="color: grey;text-align: left;font-size: small;">APY :</div>
+                <div style="text-align: left;font-size: larger;" id="vapy"> APY : 7% </div>
+            </div>
+            <div>
+                <div style="color: grey;text-align: left;font-size: small;">Voting Performance:</div><div id="veprf" style="text-align: left;font-size: larger;"> Voting performance : High </div>
+            </div>
+        </div>
+        <hr width="95%">
+       
+      
+        <div style="display:flex;margin-top:20px;margin-bottom: 20px;justify-content: space-between;"><div><div style="color: grey;text-align: left;font-size: small;">ASN :</div><div style="text-align: left;font-size: larger;" id="vasn">ASN:789</div></div><div><div style="color: grey;text-align: left;font-size: small;">Data Center :</div><div id="vldc" style="text-align: left;font-size: larger;">Datacenter : 8790</div></div>
+        </div>
+         <hr width="95%">
+        <div style="display:flex;margin-top:20px;margin-bottom: 20px;justify-content: space-between;">
+            <div>
+                <div style="color: grey;text-align: left;font-size: small;">Commission :</div>
+            <div style="text-align: left;font-size: larger;" id="vcomm">Commission:7%</div>
+            </div>
+            <div>
+                <div style="color: grey;text-align: left;font-size: small;justify-content: space-between;">Commission history :</div>
+            <div style="text-align: left;font-size: larger;" id="chist">Commission history : Increase</div>
+            </div>
+            <div>
+                <div style="color: grey;text-align: left;font-size: small;">Version :</div>
+            <div style="text-align: left;font-size: larger;" id="vver"> Version : 6789</div>
+            </div>
+            </div>
+        
+         <hr width="95%">
+          <div style="color: grey;text-align: left;font-size: small;">Staked pools:</div>
+        <div id="stakepoollist" style="margin-bottom: 20px;display:flex;margin-top:20px;text-align:center;justify-content: space-between;flex-wrap: wrap;">
+            Staked Pools : hdjwkflkn , wdefjkl , jedfklk;
+        </div>
+        <hr width="95%">
+        </div>
+
+        <div style="border-radius:30px;width:95%;margin:auto;padding-top: 10px;padding-bottom: 10px;justify-content:center;margin-top:10px;">
+            <div style="color: grey;text-align: left;font-size: small;">Public Key : </div>
+            <div id="pubkey" style="justify-content:center;margin-right:10px;display:flex;text-align:left;"> udhfdkf</div><hr style="width:95%;">
+            <div style="color: grey;text-align: left;font-size: small;">Vote Account : </div>
+            <div id="voteid" style=""> uhijlk</div>
+        </div>
+        
+      <!--  <div style="margin-top:10px;">
+       <strong>Amount to Stake :</strong><input id="stakamt" type="text"> SOL </div> -->
+           </div>
+           <div style="background:lightgray;height:100%;"><button id="addtolist" class="button" >Delegate</button></div>
+            
+           </div>
+           </div>
+       <!--  <div id="txnscreen" class="screen">
+       <div id="txnpopup">
+           <div class="heading">Transaction list</div>
+           <button class="clsbtn" onclick="txnclose();"><i class="fas fa-times"></i></button>
+           <div class="subhead"><h2>Transactions :-</h2></div>
+           <div class="txnholder">
+            <table id="tabtxn" style="width:40%;">
+            </table>
+            </div>
+       </div></div> -->
+       
+       
+       
+      <!--  <div id="nbcenter" class="card" style="width:400px;height:400px;z-index:1;position: relative;margin-top:5%;">
+
+                 <div >
+               <div><a href="#" class="headermenu"  onclick="vscreen()"><strong>Validators</strong></a></div>
+                <div><a class="headermenu" href="#" id="stakemenu" onclick="rvlstk();"><strong>Stake</strong></a></div>
+                 <div><a class="headermenu" href="#" id="rewardsmenu" onclick="rvlrwd();"><strong>Rewards</strong></a></div>
+             
+                 <div ><a class="headermenu" href="https://docs.stagnum.finance/" ><strong>Docs</strong></a></div>
+                  <div><a class="headermenu" href="https://discord.gg/JTp5vyK8FS" ><strong>Support</strong></a></div>
+                
+            </div>
+                         <div id="navbarbg" style="margin-top:3px;width:100%;height:51px;background:#fff;opacity:0.15;position:absolute;z-index:-1; margin-top: -48px;">
+                             
+                         </div></div></div> -->
+      
+       <!--<div class="container" style="">hvjhvkuyyv</div>-->
+     <!--  <div class="card" id="card" style="z-index: 2;">
+  <div class="outlay">
+         <div style="color:#000000; font-family: 'dstar';"><h1><strong>Stagnum</strong></h1></div>
+      <div id="imge" style="height:6em;border-radius:10px;margin:auto;color:#000;">
+      <img src="../images/stag.png" class="logo">
+      <h3 style="font-family:'Montserrat';margin-top:10px;">Multi validator staking UI</h3>
+      </div>
+       <button class="connect" onclick="con_wall()">Connect</button>
+        <div style="color:#000;margin-top:-5px;font-family:'Montserrat"><h5>Connect your wallet to login.</h5></div>
+        <div style="display:flex;color:#000;font-family:'Montserrat';justify-content: center;">
+            <div><a href="https://docs.stagnum.finance/" style="text-decoration:none;color:black;">Docs</a></div><div style="width:.1em;margin: 5px;background: black;"></div><div>Support</div>
+        </div>
+  </div>
+</div> -->
+
+        <div id="filterval" style="width: 100%;height: 100%;background: #000000b0;position: fixed;top: 0;" >
+            <div class="clp">
+              <button class="clsbtn" onclick="filclose();"><i class="fas fa-times"></i></button>
+                  <div id="datfil" class="filtersection"><h2 style="color:black">Data center</h2>
+                  <div class="filtersub" >
+                  <div class="filter" id="dnamefilter"> Data Center name <div class="selectBox" id="selectBox"
+                onclick="showCheckboxes()"><select id="dnamelist"><option>select</option>  </select>   <div class="overSelect"></div>
+            </div>           
+            <div id="checkBoxes">
+            </div>
+            </div>
+           
+                  <div class="filter" id="concfilter"> Data Center Concentration <select id="dconclist">  </select></div>
+                  <div class="filter" id="asnfilter">ASN <select id="dasnlist">  </select></div>
+                  </div></div>
+                  <div id="stafil" class="filtersection"><h2 style="color:black">Stake</h2>
+                  <div class="filtersub">
+
+                     
+                      <div class="filter" id="spoolfilter"> Receiving stake from pool : <select id="stakelist">  </select></div>
+                      <div class="filter" id="actfilter"> Active stake : <br> min : <input type="text" id="stakemin" style="width:10em;"> SOL<br> max : <input type="text" id="stakemax" style="width:10em;"> SOL</div>
+                      </div>
+                  </div>
+                  <div id="comfil" class="filtersection"><h2 style="color:black">Commission</h2>
+                  <div class="filtersub">
+                      <div class="filter" id="chistfilter"> Commission history : <select id="chlist">  </select></div>
+                      <div class="filter" id="commfilter"> Current Commission : <br>min : <input type="text" id="commin" style="width:6em;">% <br>max : <input type="text" id="commax" style="width:6em;">%</div>
+                      </div>
+                      </div>
+                       <div id="apyfil" class="filtersection"><h2 style="color:black">APY</h2>
+                  <div class="filtersub">
+                       <!--<input type="checkbox" id="ahist">
+                      <div class="filter" id="apyhistfilter"> APY history available : <select id="apylist">  </select></div>-->
+                      
+                      <div class="filter" id="apysortfilter"> Current APY : <br>min : <input type="text" id="apymin" style="width:6em;">% <br>max : <input type="text" id="apymax" style="width:6em;">%</div>
+                      </div>
+                      </div>
+                       <div id="votfil" class="filtersection"><h2 style="color:black">Voting</h2>
+                  <div class="filtersub">
+                      
+                      <div class="filter" id="vperfilter"> Voting Performance : <select id="vperf">  </select></div>
+                       
+                      <div class="filter" id="delifilter"> Delinquent : <select id="deli">  </select></div>
+                       
+                      <div class="filter" style="margin-left: -5%;" id="skipfilter"> Skip Rate :<br> min : <input type="text" id="skipmin" style="width:6em;">% max : <input type="text" id="skipmax" style="width:6em;">%</div>
+                      </div>
+                    </div>
+                    <div id="versionfil" class="filtersection"><h2 style="color:black">Version</h2>
+                  <div class="filtersub">
+                      
+                                           <div class="filter" id="versionfilter"> Version <select id="verlist">  </select><div id="versionid"></div></div>
+                       
+                     
+                      </div>
+                    </div>
+                     <hr style="width:98%;border-color:cadetblue;">
+                     <div style="display:flex;justify-content: center;">
+                         <button id="resetbtn"  onclick="reset_filter('nil')">Reset Filters</button>
+               <button class="aplfilt" onclick="apply_filter()">Apply Filters</button>
+                       </div></div>
+          </div>
+    <!--  <div id="validatorscren" class="screen">
+          <div style="margin-left:5%;margin-top:3em;font-family:verdana;" id="validatorheading">
+              <h1 style="color:limegreen;"><i class="fas fa-server fa-fw"></i>Validators</h1>
+          </div>
+         
+          <div id="tableval" style="table-layout: relative;width: 100% !important;overflow: scroll;margin-top:15px;">
+              <table id="tabexample" style="width:90%;">
+                        <thead style="background:rgb(24 41 56 / 95%);color:#8a9efb;">
+            <tr>
+                <th><strong>Name</strong><br><hr>version</th>
+                <th>Staked amount(Sols)</th>
+                <th>Commission<br><hr>APY<br><hr>commission history</th>
+                <th><br>APY history</th> 
+                <th>Vote account</th>
+                <th>Data center<br><hr>Data center concentration</th>
+                <th>Validator skip rate<br><hr>Validator voting performance</th>
+                
+            
+            </tr>
+        </thead>
+        <tbody>
+            
+            
+            </tbody>
+              </table>
+              
+          </div>
+          <button id="addlist" onclick="add()">Add to list</button>
+      </div>-->
+      
+       <div id="stakescreen" class="screen" style="position:fixed;margin:auto;top: 0;">
+          <div id="validatorpopup" style="overflow:hidden;width:60%;margin-top:6%;border-radius:10px;">
+           <div style="width:100%;" class="heading">Stake list   <button style="margin-left: 80%;background: transparent;border: 0px;" onclick="stkclose();"><i class="fas fa-times"></i></button></div>
+         
+           
+           <div class="tableholder" style="max-height: 60%; overflow: scroll; overflow-x: hidden;margin-bottom:10px;">
+              <table id="newtable" style-="width:80%;">
+                        <thead style="">
+            <tr>
+                <th><strong>Name</strong></th>
+                <th>Vote account</th>
+                <th>Amount in Sol</th>
+            </tr>
+        </thead>
+        
+              </table>
+             
+      </div>
+      <div style="display: flex;width: 100%;justify-content: center;background: lightgray;"><button id="stkbtn" style="transition:0.4s;margin-right:5%;" class="button" onclick="stake()">Stake</button>
+             <button id="rstbtn" style="background:red;" class="button" onclick="reset()">Reset</button></div>
+      </div> </div>
+      
+      <div id="rewardscreen" style="position: fixed;margin: auto;top: 0px;   display: none;" class="screen">
+          <div id="validatorpopup" style="margin-top:30px;width:98%;overflow: hidden;">
+           <div class="heading" style="width:100%;">Rewards list</div>
+           <button class="clsbtn" style="margin-top:20px;margin-right:10px;" onclick="rwdclose();"><i class="fas fa-times"></i></button>
+           <div class="subhead"><h2>Rewards</h2></div>
+           <div class="stakeholder" id="rwdhd">
+         
+            <!-- <button id="stkbtn" style="right: 30%;" class="button" onclick="stake()">Stake</button>
+             <button id="rstbtn" style="left: 30%;background:red;" class="button1" onclick="reset()">Reset</button>-->
+      </div></div> </div>
+      
+      <div id="snackbarwrap" style="width: 100%;height: 100%;position: fixed;margin: auto;top: 0;backdrop-filter: blur(10px);"><div id="snackbar"><h3>Alert!</h3>
+     <div id="alrtmsg"></div>
+     <hr>
+     <div style="width:100%;text-align:center;" onclick="dismissalert();"><strong>Dismiss</strong></div>
+      </div></div>
+      
+     <!--  <div id="stkeval" style="visibility: collapse;table-layout: relative;width: 100% !important;height: 100% !important;overflow: scroll;margin-top:15px;">
+              <table id="stktable" style="width:90%;">
+                        <thead style="background:rgb(24 41 56 / 95%);color:#8a9efb;">
+            <tr>
+                <th><strong>Name</strong><br><hr>version</th>
+                <th>Vote account</th>
+                <th>Hash</th>
+                <th>Amount</th>
+                <th>Rewards</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            
+            </tbody>
+              </table>
+      </div>
+       -->
+     
+      <!--
+       <div id="transactionscreen" class="screen">
+          <div id="txntbl" style="table-layout: relative;width: 100% !important;overflow: scroll;margin-top:15px;">
+             <table id="txntable" style="width:90%;">
+                        <thead style="background:rgb(24 41 56 / 95%);color:#8a9efb;">
+            <tr>
+                <th><strong>Type</strong><br><hr>version</th>
+                <th>Account</th>
+                <th>Hash</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            
+            </tbody>
+              </table>
+          </div>
+      </div>
+      -->
+      
+       <script>
+$('#nbcenter').hide();
+$('#welcomecard').hide();
+//$('#validatorscreen').hide();
+ $('#rewardscreen').hide();
+$('#filterval').hide();
+$('#filterbtn').hide();
+$('#txnscreen').hide();
+//$('#validatorscren').hide();
+$('#stakescreen').hide();
+$('#faqscreen').hide();
+$('#navbar').hide();
+ $('#loadingscreen').hide();
+ $('#validatorinfoscreen').hide();
+$('#transactionscreen').hide();
+//$('#validatorpopup').hide();
+  $('#tabexample tbody').on( 'click', 'tr', function () {
+        $(this).toggleClass('selected');
+        //alert("cljnicked");
+    } );
+   
+       </script>
+       
+       
+       <style>
+       
+       .connect {
+  display: inline-block;
+    font-size: 1em;
+    margin: 0.3em;
+    margin-top:1.2em;
+    padding: 0.3em;
+    border-radius: 8px;
+  transition: all .5s;
+  text-decoration: none;
+  box-shadow: 5px 5px 0 #000;
+    color: #000;
+    font-family: 'Montserrat';
+    background-color: transparent;
+    background-image: none;
+    border-color: #000;
+    transition: all .5s ease-in-out;
+}
+
+.connect:hover
+{
+     box-shadow: 0px 0px 0 #000;
+     background:#000;
+     color:#fff;
+}
+
+.rot-135:hover {
+  filter: hue-rotate(135deg);
+  border-style: unset;
+}
+
+
+.headermenu
+{
+    text-decoration: none;border: 3px solid #101010;padding:10px;width: 6em;text-align: center;display: block;
+    font-family:'Montserrat';
+    border-radius:15px;
+    box-shadow: 6px 3px 3px 2px black;
+    margin-top:10px;
+     color:#101010;
+     -webkit-transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+    -ms-transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+    transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+}
+
+.filtermenu
+{
+   
+    text-align: center;
+    width:7em;
+    height:3em;
+    border:0px;
+    border-radius:20px;
+    margin-top:10px;
+    display: block;
+    background:white;
+    font-family:'Montserrat';
+     color:#101010;
+     transition:0.4s;
+}
+
+.filtermenu:hover
+{
+     background:black;
+     color:white;
+     transition:0.4s;
+}
+
+
+.headermenu:hover
+
+{
+    color:#ffffff;
+    background:#101010;
+    box-shadow: none;
+    margin-top:15px;
+      -webkit-transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+    -ms-transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+    transition: color 500ms linear , background-color 500ms linear,box-shadow 0.5s ease-in-out;
+}
+
+
+#welcomecard
+{
+        width: 80%;
+    height: 12%;
+    position: relative;
+    color: #333;
+    font-family: 'Montserrat';
+    display: flex;
+    padding: 5px;
+    margin:auto;
+    justify-content:space-between;
+}
+
+
+.tableholder
+{
+   /* width: 90%;
+    height: 80%;
+    overflow: scroll;
+    overflow-x: hidden;
+    margin: auto;*/
+    margin-top:20px !important;
+    width:80%;
+    margin:auto;
+    
+}
+
+.stakeholder
+{
+    width: 90%;
+    height: 70%;
+    overflow: scroll;
+    overflow-x: hidden;
+    margin: auto;
+    
+}
+
+.stakein
+{
+    border:solid 2px black;
+    display:flex;
+    justify-content: center;
+}
+
+.stkrewbal,.stkrewstate,.actepc,.deactepc
+{
+ 
+    padding:.5em;
+}
+
+.stakeaccountid,.voteaccountid
+{
+    padding:.5em;
+    overflow:hidden;
+}
+
+.stakecell
+{
+   margin: auto;
+    margin-top: 1em;
+    width: 90%;
+    padding: 1em;
+    box-shadow: 0 0 6px 0px black;
+    border-radius: 6px;
+}
+
+.txnholder
+{
+    width: 90%;
+    height: 70%;
+    overflow: scroll;
+    margin: auto;
+    
+}
+
+#validatorpopup
+{
+  /*  z-index:9999;
+   position:absolute;*/
+    margin:auto;
+    background:#fff;
+    border-radius: 10px;
+   /* width:80%;
+    height:90%;*/
+    left: 0;
+    right: 0;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    bottom: 0;
+  /*  border:dashed; */
+}
+
+#txnpopup
+{
+    z-index:9999;
+    position:absolute;
+    margin:auto;
+    background:#fff;
+    width:80%;
+    height:90%;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    bottom: 0;
+    border:dashed;
+}
+
+.divider
+{
+        width: 4px;
+    background: #333;
+    height: 100%;
+    border-radius: 5px;
+    margin-left:8px;
+    margin-right:8px;
+}
+
+
+.odd
+{
+   background: #d3d3d380 !important; 
+   transition: 0.3s;
+}
+.odd:hover,.even:hover
+{
+  background:#d3d3d3 !important;
+  transition: 0.5s;
+}
+
+.even
+{
+      background:white !important;
+      transition: 0.3s;
+}
+
+
+.heading
+{
+        background: lightgray;
+    margin: auto;
+    font-family: 'Montserrat';
+    padding: 5px;
+    width:90%;
+}
+
+.name
+{
+    overflow: hidden;
+}
+
+.namerow
+{
+    color:#aaa;
+    text-align: center;
+    width:130px;
+    margin-left: 10px;
+    margin-top: -5px;
+    text-overflow: ellipsis;
+}
+
+.button {
+  padding: 8px;
+    background: white;
+    border: 2px solid;
+    width: 8em;
+    font-family: 'Montserrat';
+    margin-top: 8px;
+    border-radius: 20px;
+}
+
+.button:hover {
+  color: #fff;
+  background:black;
+}
+
+
+
+.button1 {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10rem;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.15rem;
+  border: solid black;
+  transform: translateY(15px);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  margin:auto;bottom:0;position:absolute;left:0;right:0;width: fit-content;padding: 8px;
+  z-index: 1;
+}
+.button1:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f30;
+  border-radius: 10rem;
+  z-index: -2;
+}
+.button1:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #b63028;
+  transition: all 0.3s;
+  border-radius: 10rem;
+  z-index: -1;
+}
+.button1:hover {
+  color: #fff;
+}
+.button1:hover:before {
+  width: 100%;
+}
+
+.redelbtn
+{
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10rem;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.15rem;
+  border: solid black;
+  overflow: hidden;
+  width: fit-content;
+  background-color:#0cec15;
+  padding: 8px;
+  z-index: 1;
+  left:10%;
+}
+
+.redelbtn:hover
+{
+     background-color:#15bb1c;
+      color: #ffa;
+}
+
+.wdrbtn
+{
+     display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10rem;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.15rem;
+  border: solid black;
+  overflow: hidden;
+  width: fit-content;
+  background-color:#0cf;
+  padding: 8px;
+  z-index: 1;
+  left:10%;
+}
+
+.rwdlist
+{
+   
+    overflow-x: hidden;
+    border:dashed 2px black;
+}
+
+.rwdcls
+{
+    display:flex;
+    justify-content:center;
+    margin-top:2px;
+}
+
+.rwdcls > div {
+  flex: 1 1 auto;
+  text-align: center;
+
+  margin: 5px;  /* and that, will result in a 10px gap */
+}
+
+
+.wdrbtn:hover
+{
+    background-color:#008fb3;
+      color: #ffa;
+}
+
+.deactbtn {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10rem;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.15rem;
+  border: solid black;
+  overflow: hidden;
+  width: fit-content;
+  background-color:#ff30a8;
+  padding: 8px;
+  z-index: 1;
+  margin-top: 5px;
+}
+
+.deactbtn:hover {
+  color: #ffa;
+   background-color:#db1a8a;
+}
+
+
+
+
+
+.clsbtn{
+border: solid;
+    width: 25px;
+    height: 25px;
+    /* border-radius: 20px; */
+    margin-right: auto;
+    transition: .5s;
+    right: 0;
+    position: absolute;
+    top: 0;}
+    
+    
+    .clsbtn:hover{
+        border-radius: 20px;
+    }
+
+.screen
+{
+    width: 100%;
+    height: 100%;
+   background: #000000b5;
+    font-family:'Montserrat';
+    text-align:center;
+    position: absolute;
+    z-index: 999;
+}
+
+
+.subhead
+{
+    transform: translateY(10px);
+}
+
+
+.btnflex
+{
+    
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0.5em;
+
+}
+
+
+#tabexample_length
+{
+    color:darkgrey;
+}
+
+
+#tabexample_filter
+{
+    color:darkgrey;
+}
+
+
+.dataTables_paginate .paginate_button {
+        border: 1px solid #333 !important;
+        color:darkgrey !important;
+}
+
+.dataTables_info, .dataTables_wrapper .dataTables_paginate {
+color:darkgrey !important;
+}
+
+.dataTables_paginate .paginate_button.current
+{
+    background: linear-gradient(to bottom, #4877a5 0%, #67a6e5 100%) !important;
+}
+
+
+.dataTables_filter input {
+
+    color: #555;
+}
+
+
+.vercls
+{
+    color:#aaa;
+    text-align: center;
+   margin-top:2px;
+}
+
+.clp
+{
+  width: 30%;
+    height: fit-content;
+    background: white;
+    border-radius: 7px;
+    color: darkgrey;
+    position: fixed;
+    top: 25%;
+    z-index: 9999;
+    left: 35%;
+    padding: 10px;
+    border-radius:10px;
+    transition: height 1.5s;
+}
+.rvl
+{
+     
+  height: 22em;
+}
+
+.logo
+{
+    height:80px;width:80px;border-radius:10px;border-radius: 10px;border: 4px solid black;
+    box-shadow: 4px 0px 0px 1px #000;
+}
+
+
+.filtersection
+{
+    margin-left:2em;
+    margin-top:.7em;
+    font-family: 'Montserrat';
+    text-align:center;
+   
+}
+.filtersub
+{
+   color:#000;
+}
+
+.filter
+{
+    color:#111;
+    margin-bottom:8px;
+}
+                   
+
+.fa-caret-right {
+  -webkit-transition: transform .4s; /* Safari */
+  transition: transform 1s;
+ // transform: rotate(-90deg);
+}
+
+
+.caret-down {
+  -webkit-transition: transform .4s; /* Safari */
+  transition: transform 1s;
+  transform: rotate(90deg);
+}
+
+.imgcls
+{
+    width:30px;
+    height:30px;
+    border-radius: 30px;
+}
+
+.colclass
+{
+    display:flex;
+   justify-content: center;
+}
+
+
+.even.selected,.odd.selected
+{
+     background-color: rgb(108 ,110 ,112 , .93) !important;
+}
+
+.fcol
+{
+   /* width:9em; */
+    display:flex;
+}
+
+.scol
+{
+     width:9em;
+     text-align:center;
+}
+
+.tcol
+{
+        width: 9em;
+    text-align: center;
+    word-wrap: break-word;
+
+}
+
+.focol
+{
+        width: 9em;
+    text-align: center;
+
+}
+
+
+.ficol
+{
+        width:12em;
+    text-align: center;
+    word-wrap: break-word;
+
+}
+
+.rwdexpnd
+{
+    width:fit-content;
+}
+
+.stakediv .tooltiptext , .plist .tooltiptext , .focol .tooltiptext , .tcol .tooltiptext , .cntr .tooltiptext , .fcol .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.stakediv:hover .tooltiptext , .plist:hover .tooltiptext , .focol:hover .tooltiptext , .tcol:hover .tooltiptext, .cntr:hover .tooltiptext , .name:hover .tooltiptext , .stkamt:hover .tooltiptext, .commm:hover .tooltiptext{
+  visibility: visible;
+}
+
+
+.stkrow
+{
+    width:650px;
+    display: flex;
+}
+
+.typ
+{
+    color: lightseagreen;
+}
+
+
+.lnkcol
+{
+        display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ff9800;
+}
+
+
+.lnkcol:hover
+{
+    color: #ff0ff0;
+}
+
+.accrow
+{
+        width: 75%;
+    word-break: break-all;
+    margin-left:3px;
+}
+
+.amtrow
+{
+    margin-left:3px;
+}
+
+.cntr
+{
+   width: 10em;
+}
+.imgcol
+{
+    display: block;
+     overflow: hidden;
+  text-overflow: ellipsis;
+text-decoration: none;
+margin-left:25px;
+/*margin-top:5px;*/
+color:#40c0e7;
+/*height: 3em;
+line-height: 1em;
+width:8em;*/
+}
+
+.imgcol:hover
+{
+    color:#fff;
+}
+
+.imgcol1
+{
+    display: block;
+     overflow: hidden;
+  text-overflow: ellipsis;
+text-decoration: none;
+color:#40c0e7;
+font-size: larger;
+}
+
+.imgcol1:hover
+{
+    color:orange;
+}
+
+td{
+text-align:center;
+}
+
+ .b-green, .b-green:before {
+    background: rgba(73,155,234,1);
+    border-style: solid;
+    background: -moz-linear-gradient(45deg, rgba(73,155,234,1) 0%, rgba(26,188,156,1) 100%);
+    background: -webkit-gradient(left bottom, right top, color-stop(0%, rgba(73,155,234,1)), color-stop(100%, rgba(26,188,156,1)));
+    background: -webkit-linear-gradient(45deg, rgba(73,155,234,1) 0%, rgba(26,188,156,1) 100%);
+    background: -o-linear-gradient(45deg, rgba(73,155,234,1) 0%, rgba(26,188,156,1) 100%);
+    background: -ms-linear-gradient(45deg, rgba(73,155,234,1) 0%, rgba(26,188,156,1) 100%);
+    background: linear-gradient(45deg, rgba(73,155,234,1) 0%, rgba(26,188,156,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#499bea', endColorstr='#1abc9c', GradientType=1 );
+  }
+
+       canvas {
+  display: block;
+  vertical-align: bottom;
+}
+
+#particles-js {
+  position: absolute;
+  width: 98%;
+  height: 100%;
+}
+
+       :root {
+  --card-height: 20em;
+  --card-width: 20em;
+}
+@property --rotate {
+  syntax: "<angle>";
+  initial-value: 132deg;
+  inherits: false;
+}
+
+@font-face {
+  font-family: dstar;
+  src: url(include/DeathStar.otf);
+}
+
+.card {
+ 
+  width: var(--card-width);
+  height: var(--card-height);
+  padding: 3px;
+  position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  border-radius: 6px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  font-size: 1.5em;
+  color: rgb(88 199 250 / 0%);
+  cursor: pointer;
+  font-family: star;
+  border: solid 1px black;
+    box-shadow: 4px 3px 6px 1px black;
+    background: white;
+}
+
+.selectBox
+{
+     position: relative;
+  
+}
+
+
+.overSelect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    }
+  
+#checkBoxes {
+    display: none;
+    border: 1px #8DF5E4 solid;
+       height:150px;
+       text-align:left;
+     overflow:scroll;
+     overflow-x: hidden;
+    }
+  
+#checkBoxes label {
+    display: block;
+    color:#111;
+    }
+  
+#checkBoxes label:hover {
+    background-color: #4F615E;
+    color:#aaa;
+    }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(6 35 197 / 72%) black;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: #d2c9c9;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #2196f3;
+  border-radius: 20px;
+  /*border: 3px solid orange;*/
+}
+
+#loadingscreen
+{
+    z-index:99999;width:100%;height:100%;position:fixed;margin:auto;background:#ffffff75;
+    top:0;
+    backdrop-filter: blur(5px);
+}
+
+.outlay {
+  
+    width:20em;
+    height:20em;
+}
+
+@keyframes spin {
+  0% {
+    --rotate: 0deg;
+  }
+  100% {
+    --rotate: 360deg;
+  }
+}
+
+            .overlay-loader {
+	display: block;
+	margin: auto;
+	width: 200px;
+	height: 200px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	    background: white;
+    border: 2px dashed black;
+    border-radius: 10px;
+    box-shadow: 0 0 8px 4px black;
+}
+
+
+.btm
+{
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    bottom: 0;
+    font-family:'Montserrat';
+}
+
+
+
+.loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 97px;
+	height: 97px;
+	animation-name: rotateAnim;
+		-o-animation-name: rotateAnim;
+		-ms-animation-name: rotateAnim;
+		-webkit-animation-name: rotateAnim;
+		-moz-animation-name: rotateAnim;
+	animation-duration: 0.4s;
+		-o-animation-duration: 0.4s;
+		-ms-animation-duration: 0.4s;
+		-webkit-animation-duration: 0.4s;
+		-moz-animation-duration: 0.4s;
+	animation-iteration-count: infinite;
+		-o-animation-iteration-count: infinite;
+		-ms-animation-iteration-count: infinite;
+		-webkit-animation-iteration-count: infinite;
+		-moz-animation-iteration-count: infinite;
+	animation-timing-function: linear;
+		-o-animation-timing-function: linear;
+		-ms-animation-timing-function: linear;
+		-webkit-animation-timing-function: linear;
+		-moz-animation-timing-function: linear;
+}
+.loader div {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	border: 1px solid rgb(0,0,0);
+	position: absolute;
+	top: 2px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+.loader div:nth-child(odd) {
+	border-top: none;
+	border-left: none;
+}
+.loader div:nth-child(even) {
+	border-bottom: none;
+	border-right: none;
+}
+.loader div:nth-child(2) {
+	border-width: 2px;
+	left: 0px;
+	top: -4px;
+	width: 12px;
+	height: 12px;
+}
+.loader div:nth-child(3) {
+	border-width: 2px;
+	left: -1px;
+	top: 3px;
+	width: 18px;
+	height: 18px;
+}
+.loader div:nth-child(4) {
+	border-width: 3px;
+	left: -1px;
+	top: -4px;
+	width: 23px;
+	height: 23px;
+}
+.loader div:nth-child(5) {
+	border-width: 3px;
+	left: -1px;
+	top: 4px;
+	width: 31px;
+	height: 31px;
+}
+.loader div:nth-child(6) {
+	border-width: 4px;
+	left: 0px;
+	top: -4px;
+	width: 39px;
+	height: 39px;
+}
+.loader div:nth-child(7) {
+	border-width: 4px;
+	left: 0px;
+	top: 6px;
+	width: 49px;
+	height: 49px;
+}
+
+
+@keyframes rotateAnim {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+@-o-keyframes rotateAnim {
+	from {
+		-o-transform: rotate(360deg);
+	}
+	to {
+		-o-transform: rotate(0deg);
+	}
+}
+
+@-ms-keyframes rotateAnim {
+	from {
+		-ms-transform: rotate(360deg);
+	}
+	to {
+		-ms-transform: rotate(0deg);
+	}
+}
+
+@-webkit-keyframes rotateAnim {
+	from {
+		-webkit-transform: rotate(360deg);
+	}
+	to {
+		-webkit-transform: rotate(0deg);
+	}
+}
+
+@-moz-keyframes rotateAnim {
+	from {
+		-moz-transform: rotate(360deg);
+	}
+	to {
+		-moz-transform: rotate(0deg);
+	}
+}
+
+#navbarcent > div:hover hr{ 
+    color:black;
+    width:90%; -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+   }
+
+#navbarcent > div hr
+{
+    width:0%;
+    border:solid 2px;
+    color:transparent;
+}
+
+#validpopup
+{
+    border: 0px;
+    height: 60%;
+    width: 35%;
+    margin: auto;
+    margin-top: 10%;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: white;
+    overflow: hidden;
+    border-radius:10px;
+}
+
+.closebtn
+{
+           border: 0px;
+    width: 25px;
+    height: 25px;
+    margin-right: auto;
+    background: lightgray;
+}
+    
+    .vimg
+    {
+        width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    margin-right: 20px;
+    }
+    
+#navbarcent > div {
+  text-align: center;
+  font-family:'Montserrat';
+  width:9vw;
+  margin: 5px;  /* and that, will result in a 10px gap */
+}
+
+#lblCartCount {
+    font-size: 12px;
+    background: #ff0000;
+    color: #fff;
+    padding: 0 5px;
+    vertical-align: top;
+   margin-top: -5px;
+    position: absolute;
+}
+.badge {
+  padding-left: 9px;
+  padding-right: 9px;
+  -webkit-border-radius: 9px;
+  -moz-border-radius: 9px;
+  border-radius: 9px;
+}
+
+.label-warning[href],
+.badge-warning[href] {
+  background-color: #c67605;
+}
+
+#navbarright
+{
+     display:flex;flex-direction: row;margin-top:1px; margin-left: auto;margin-top:15px;margin-left:10px;font-family:'Montserrat';border: solid 1px;height: fit-content;
+    padding: 5px; border-radius: 10px;transition:0.5s;
+}
+
+#navbarright:hover
+{
+    border: solid 2px;
+    padding: 7px;
+    background:black;
+    color:white;
+}
+
+
+.pooldiv
+{
+    display: flex;
+    justify-content: center;
+    margin-top:-5px;
+}
+
+
+.pooldiv > div
+{
+     margin-left: 30px;
+     padding-top:15px;
+     padding-bottom:15px;
+}
+
+#stkmenu
+{
+    height: fit-content;padding: 5px;
+    background: #40c0e7;transform: translateY(-5px);border-radius: 5px;width: 60px !important; transition:0.5s;color:#fff;
+}
+
+
+
+
+/*
+
+.wrapper input {
+  border: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  opacity: 0;
+}
+
+.wrapper label {
+  position: relative;
+  float: right;
+  color: #C8C8C8;
+}
+
+.wrapper label:before {
+  margin: 5px;
+  content: "\f005";
+  font-family: 'FONT AWESOME 5 PRO';
+  display: inline-block;
+  font-size: 1.5em;
+  color: #ccc;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.wrapper input:checked ~ label:before {
+  color: #1af204;
+}
+
+.w2 {
+  color: #f20725;
+}
+
+.wrapper label:hover ~ label:before {
+  color: #ffdb70;
+}
+
+.wrapper label:hover:before {
+  color: #FFC107;
+}
+*/
+
+
+         .delbtn {
+            text-align: center;
+            transition: 0.5s;
+             border:1px black solid;
+             padding:6px;
+             padding-left:15px;
+             padding-right:15px;
+            font-family:'Montserrat';
+             color:black;
+            border-radius: 30px;
+            display: inline-flex;
+               background: white;
+          }
+
+          .delbtn:hover {
+           background:black !important; 
+           box-shadow: 0 0 12px 1px #b6a2a2;
+           color:white !important;
+          }
+         
+         #top5,#top10,#top20,#cleartop
+         {
+    background-color: white;
+    border-radius: 20px;
+    font-family: 'MONTSERRAT';
+    border: 0px;
+   width:4.5em;
+   height:3em;
+    transition:.6s;
+    margin-top:10px;
+         }
+         
+          #top5:hover,#top10:hover,#top20:hover,#cleartop:hover
+         {
+             background: black;
+    color: white;
+         }
+         
+         #t5chk,#t10chk,#t20chk
+         {
+             display:none;
+         }
+         
+         .welcomebox
+         {
+             transform: translateY(-15px);
+             margin-right:8%;
+             text-align:center;
+             background:paleturquoise;
+             height:85px;
+             width:140px;
+             border-radius:10px;
+             padding:5px;
+             border:solid;
+             color:black;
+             transition:0.5s;
+         }
+         
+         
+         .welcomebox:hover
+         {
+             box-shadow:0px 0px 11px 1px paleturquoise;
+         }
+         
+
+#stkmenu:hover
+{
+    background: palevioletred;
+    color:white;
+}
+
+#tabexample_length {
+margin-left: 6%;
+
+}
+#tabexample_filter
+{
+   transform: translateX(-25%); 
+}
+
+.lstcls
+{
+    max-height: 20em; 
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.repc
+{
+    width:15%;
+}
+
+.rrew
+{
+ width:25%;   
+}
+
+.rbal
+{
+ width:25%;   
+}
+
+.rcomm
+{
+    width:15%;
+}
+
+.rapy
+{
+    width:15%;
+}
+
+.delstk
+{
+    border-radius: 20px;
+    border: 0.5px solid;
+    background: white;
+    width: 25px;
+    height: 25px;
+    margin-left: 10px;
+    transition:1s;
+}
+
+.delstk:hover
+{
+       
+    background: black;
+   color:white;
+   transition:1s;
+}
+
+
+#snackbar {
+ 
+min-width: 500px;
+ animation: fadein 0.5s;
+    max-width: 500px;
+    margin-left: -125px;
+    background-color: lightgrey;
+    color: black;
+    text-align: center;
+    border-radius: 5px;
+    font-family: 'MONTSERRAT';
+    border: 1px solid black;
+    padding: 16px;
+    position: fixed;
+    z-index: 9999;
+    left: 25%;
+    margin: auto;
+    bottom: 35%;
+    word-break: break-word;
+}
+
+.aplfilt
+{
+    width: 10em;
+    background: mediumpurple;
+    border: 0px;
+    border-radius: 20px;
+    height: 3em;
+    color: white;
+    font-family: 'Montserrat';
+    transition:0.4s;
+    margin-left:6px;
+}
+
+#rvlspn
+{
+   visibility: hidden;
+    position: absolute;
+    width: 120px;
+    background-color: lightgray;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    z-index: 1;
+    transition: opacity .6s;
+    top: 8%;
+    right: 0.3%;
+}
+
+#navbarright:hover #rvlspn
+{
+     visibility: visible;
+}
+
+
+#resetbtn
+{
+    background:white;
+    border:2px solid black;
+    border-radius:20px;
+    font-family: 'Montserrat';
+    transition:0.4s;
+     width: 10em;
+     height: 3em;
+}
+
+.wltbtn
+{
+    font-family: 'Montserrat';
+    border: solid 1px;
+    height: fit-content;
+    padding: 5px;
+    border-radius: 10px;
+    background:white;
+    color:black;
+}
+
+#resetbtn:hover,.aplfilt:hover
+{
+    background: black;
+    color: white;
+    transition:0.4s;
+}
+
+#snackbar.show {
+  visibility: visible; 
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 5s;
+  animation: fadein 0.5s, fadeout 0.5s 5s;
+}
+
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+       </style>
+    </body>
+</html>
